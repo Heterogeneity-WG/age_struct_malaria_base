@@ -42,7 +42,7 @@ if immunity_feedback == 0
     P.psi_f_0 = 0.114825053290306; % value at zero
     P.psi_f_1 = 0.114825053290306; % value at L (function saturates to this value)   
 end
-P.betaM = 0.025;
+% P.betaM = 0.025;
 %% initial condition 'init' 'EE'
 [SH0, EH0, DH0, AH0, SM0, EM0, IM0, Cm0, Cac0, Ctot0] = age_structured_Malaria_IC('init');
 %% time evolution
