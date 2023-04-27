@@ -3,6 +3,10 @@ global P
 
 a = P.a;
 
+%% age-dependent biting rate (surface area factor)
+P.zeta_fun = @(a) 1-0.85*exp(-a/8/365); %ones(size(a));
+P.zeta = P.zeta_fun(a);
+
 P.c2 = P.c1; % weight for maternal immunity
 P.c3 = P.c1; % weight for vaccine-derived immunity
 
@@ -23,6 +27,7 @@ gH =  gH_fun(a); % human fertility rate
 
 %%
 P.gM = P.muM*P.MHr; % recruitment rate of mosquitoes;
+
 %% vaccination functions - baseline vaccine (default = 0)
 vb_fun = @(age) P.vb0.*ones(size(age));
 vb = vb_fun(a);

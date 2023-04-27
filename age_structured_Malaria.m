@@ -30,23 +30,22 @@ for n = 1:nt-1
     PH = SH(:,n)+EH(:,n)+DH(:,n)+AH(:,n); % total human at age a, t = n
     NH(n) = trapz(PH)*da; % total human population at t=n;
     NM = SM(1,n)+EM(1,n)+IM(1,n);
-    [bH,~] = biting_rate(NH(n),NM);
+    [bH,~] = biting_rate(PH,NM);
     lamH = FOI_H(bH,IM(1,n),NM);  % force of infection at t=n
-    
     % human birth terms
     SH(1,n+1) = trapz(P.gH.*PH)*da;
     EH(1,n+1) = 0;
     DH(1,n+1) = 0;
     AH(1,n+1) = 0;
-    SH(2:end,n+1) = (SH(1:end-1,n)+dt*(P.phi(1:end-1)*P.rD.*DH(1:end-1,n)+P.rA*AH(1:end-1,n))) ./ (1+(lamH+P.muH(2:end))*dt);
-    EH(2:end,n+1) = (EH(1:end-1,n)+dt*lamH*SH(2:end,n+1)) ./ (1+(P.h+P.muH(2:end))*dt);
+    SH(2:end,n+1) = (SH(1:end-1,n)+dt*(P.phi(1:end-1)*P.rD.*DH(1:end-1,n)+P.rA*AH(1:end-1,n))) ./ (1+(lamH(1:end-1)+P.muH(2:end))*dt);
+    EH(2:end,n+1) = (EH(1:end-1,n)+dt*lamH(1:end-1).*SH(2:end,n+1)) ./ (1+(P.h+P.muH(2:end))*dt);
     AH(2:end,n+1) = ((1-dt*P.rA)*AH(1:end-1,n)+dt*((1-P.rho(1:end-1))*P.h.*EH(2:end,n+1)+(1-P.phi(1:end-1)).*P.rD.*DH(1:end-1,n)))...
-        ./ (1+dt*(P.psi(1:end-1)*lamH+P.muH(2:end)));
-    DH(2:end,n+1) = ((1-dt*P.rD)*DH(1:end-1,n)+dt*(P.rho(1:end-1)*P.h.*EH(2:end,n+1)+P.psi(1:end-1).*lamH.*AH(2:end,n+1)))...
+        ./ (1+dt*(P.psi(1:end-1).*lamH(1:end-1)+P.muH(2:end)));
+    DH(2:end,n+1) = ((1-dt*P.rD)*DH(1:end-1,n)+dt*(P.rho(1:end-1)*P.h.*EH(2:end,n+1)+P.psi(1:end-1).*lamH(1:end-1).*AH(2:end,n+1)))...
         ./ (1+dt*(P.muH(2:end)+P.muD(2:end)));
     
     % adjust mosquito infection accordingly - use tn level!
-    [SM(1,n+1),EM(1,n+1),IM(1,n+1)] = mosquito_ODE(DH(:,n),AH(:,n),NH(n),NM);
+    [SM(1,n+1),EM(1,n+1),IM(1,n+1)] = mosquito_ODE(DH(:,n),AH(:,n),PH,NM);
     
     % immunity gained at age = 0
     Cm(1,n+1) = P.m*trapz(P.gH.*Cac(:,n))*da;
@@ -59,10 +58,10 @@ for n = 1:nt-1
     PHp1 = SH(:,n+1)+EH(:,n+1)+DH(:,n+1)+AH(:,n+1); % total human at age a, t = n+1
     NHp1 = trapz(PHp1)*da; % total human population at t=n;
     NMp1 = SM(1,n+1)+EM(1,n+1)+IM(1,n+1);
-    [bHp1,~] = biting_rate(NHp1,NMp1);
+    [bHp1,~] = biting_rate(PHp1,NMp1);
     lamHp1 = FOI_H(bHp1,IM(1,n+1),NMp1);
     % Cm and Cac are both pooled immunity
-    Qnp1 = f(lamHp1).*(P.cS*SH(2:end,n+1) + P.cE*EH(2:end,n+1) + P.cA*AH(2:end,n+1) ...
+    Qnp1 = f(lamHp1(2:end)).*(P.cS*SH(2:end,n+1) + P.cE*EH(2:end,n+1) + P.cA*AH(2:end,n+1) ...
         + P.cD*DH(2:end,n+1)) + P.cV*P.vb(2:end).*SH(2:end,n+1);
     mup1 = P.muH(2:end) + P.muD(2:end).*DH(2:end,n+1)./PHp1(2:end);
     Cac(2:end,n+1) = (Cac(1:end-1,n)+dt*Qnp1)./(1+dt*(1/P.dac+mup1));

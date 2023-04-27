@@ -16,8 +16,8 @@ switch state
         AH = 0.01*P.PH_stable*NH;
         
         % for mosquitoes - assume at equilibrium
-        NH = trapz(SH+EH+DH+AH)*da;
-        [SM,EM,IM] = mosquito_ODE(DH,AH,NH,NM);
+        PH = SH+EH+DH+AH;
+        [SM,EM,IM] = mosquito_ODE(DH,AH,PH,NM);
         
         Cm = 0*ones(na,1);
         Cac = 0*ones(na,1);
@@ -25,8 +25,8 @@ switch state
         
     case 'EE' % start from EE    
         [SH, EH, DH, AH, Cac, Cm, Ctot] = steady_state('EE','numerical');
-        NH = trapz(SH+EH+DH+AH)*da;
-        [SM,EM,IM] = mosquito_ODE(DH,AH,NH,NM);        
+        PH = SH+EH+DH+AH;
+        [SM,EM,IM] = mosquito_ODE(DH,AH,PH,NM);        
 
     otherwise
         keyboard
